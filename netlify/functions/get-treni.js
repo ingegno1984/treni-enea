@@ -1,4 +1,4 @@
-  const axios = require('axios');
+const axios = require('axios');
 const cheerio = require('cheerio');
 
 const CONFIG = {
@@ -33,7 +33,7 @@ exports.handler = async (event) => {
       const treno = $(c[2]).text().trim();
       if (!/^\d+$/.test(treno)) return;
       const dest = $(c[3]).text().trim();
-      const fermate = c.length > 8 ? $(c[8]).text().trim() : '';
+      const fermate = c.length > 8 ? $(c[8]).text().replace(/\s+/g, ' ').trim() : '';
       if (!cfg.test(dest, fermate)) return;
       const rit = $(c[5]).text().trim();
       treni.push({
@@ -41,7 +41,10 @@ exports.handler = async (event) => {
         destinazione: dest,
         orario: $(c[4]).text().trim(),
         ritardo: rit ? (/^\d+$/.test(rit) ? rit + ' min' : rit) : 'In orario',
-        binario: $(c[6]).text().trim()
+        binario: $(c[6]).text().trim(),
+        vettore: $(c[0]).text().trim(),
+        categoria: $(c[1]).text().trim(),
+        fermate
       });
     });
     return { statusCode: 200, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ treni, tratta: cfg.label }) };
