@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#0e3a4a">
-<meta name="description" content="Partenze live Trenitalia per i pendolari del Centro Ricerche ENEA di Portici. Tratte Portici–Napoli e Napoli–Portici, ritardi e binari in tempo reale.">
+<meta name="description" content="Partenze live Trenitalia per i pendolari del Centro Ricerche ENEA di Portici. Tutte le fermate della linea Campi Flegrei–Salerno, ritardi e binari in tempo reale.">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -88,6 +88,11 @@ header.top.scrolled{box-shadow:0 8px 24px rgba(4,20,28,.35);padding:10px 16px}
 
 .panel{background:var(--surface);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:16px;margin:16px auto 0;max-width:680px}
 .panel h2{margin:0 0 12px;font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.presets{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}
+.preset{padding:7px 13px;border-radius:999px;border:1.5px solid var(--line);background:var(--surface-2);color:var(--muted);
+  font-family:var(--disp);font-size:.76rem;font-weight:700;cursor:pointer;transition:.2s}
+.preset:hover{border-color:var(--enea-br);color:var(--enea)}
+.preset.active{background:linear-gradient(120deg,var(--enea),var(--teal));color:#fff;border-color:transparent;box-shadow:0 6px 16px color-mix(in srgb,var(--enea) 30%,transparent)}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .field{position:relative;min-width:0}
 .field label{display:block;font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 5px}
@@ -97,7 +102,7 @@ header.top.scrolled{box-shadow:0 8px 24px rgba(4,20,28,.35);padding:10px 16px}
 .field.sel::after{content:"";position:absolute;right:13px;bottom:17px;width:8px;height:8px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg);pointer-events:none}
 .span2{grid-column:1/-1}
 .rowbtns{display:flex;gap:10px;align-items:stretch;flex-wrap:wrap}
-.btn{flex:1;min-width:120px;padding:13px 14px;border:none;border-radius:12px;cursor:pointer;font-family:var(--disp);font-size:.92rem;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:.2s}
+.btn{flex:1;min-width:110px;padding:13px 14px;border:none;border-radius:12px;cursor:pointer;font-family:var(--disp);font-size:.92rem;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:.2s}
 .btn.primary{background:linear-gradient(120deg,var(--enea),var(--teal));color:#fff;box-shadow:0 8px 20px color-mix(in srgb,var(--enea) 35%,transparent)}
 .btn.primary:hover{filter:brightness(1.08);transform:translateY(-1px)}
 .btn.primary:active{transform:scale(.98)}
@@ -109,6 +114,7 @@ header.top.scrolled{box-shadow:0 8px 24px rgba(4,20,28,.35);padding:10px 16px}
 @keyframes rot{to{transform:rotate(360deg)}}
 .swap{flex:0 0 46px;min-width:46px;padding:0;font-size:17px}
 .swap:hover{transform:rotate(180deg)}
+.home{flex:0 0 46px;min-width:46px;padding:0;font-size:16px}
 .toggles{display:flex;gap:10px;flex-wrap:wrap}
 .toggle{flex:1;min-width:130px;display:flex;align-items:center;gap:10px;padding:11px 12px;border:1.5px solid var(--line);border-radius:12px;background:var(--surface-2);cursor:pointer;font-size:.84rem;font-weight:700;color:var(--text);transition:.2s}
 .toggle:hover{border-color:var(--enea-br)}
@@ -123,6 +129,7 @@ header.top.scrolled{box-shadow:0 8px 24px rgba(4,20,28,.35);padding:10px 16px}
 .chip.ok{color:var(--green);border-color:color-mix(in srgb,var(--green-br) 45%,transparent);background:color-mix(in srgb,var(--green-br) 12%,var(--surface))}
 .chip.late{color:var(--red);border-color:color-mix(in srgb,var(--red-br) 45%,transparent);background:color-mix(in srgb,var(--red-br) 12%,var(--surface))}
 .chip.next{color:var(--enea);border-color:color-mix(in srgb,var(--enea-br) 45%,transparent);background:color-mix(in srgb,var(--enea-br) 12%,var(--surface));font-family:var(--mono)}
+.chip.route{color:var(--teal);border-color:color-mix(in srgb,var(--teal-br) 45%,transparent);background:color-mix(in srgb,var(--teal-br) 12%,var(--surface))}
 
 .list{max-width:680px;margin:12px auto 0;display:flex;flex-direction:column;gap:10px}
 .train{position:relative;display:flex;align-items:center;gap:14px;padding:15px 16px 15px 20px;border-radius:16px;background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow);cursor:pointer;overflow:hidden;animation:pop .45s cubic-bezier(.2,.8,.2,1) both;transition:transform .2s,box-shadow .2s,border-color .2s}
@@ -212,7 +219,7 @@ footer a:hover{text-decoration:underline}
             <polygon points="144,60 186,60 186,0"/>
           </svg>
         </span>
-        <small>Centro Ricerche Portici · Partenze live</small>
+        <small>Centro Ricerche Portici · Linea Campi Flegrei–Salerno</small>
       </div>
     </div>
     <div class="clock"><b id="clock">--:--:--</b><span id="date">—</span></div>
@@ -226,15 +233,26 @@ footer a:hover{text-decoration:underline}
   <div class="banner stale" id="staleBanner">📡 Dati non aggiornati: ultima lettura riuscita alle <span id="staleTime">—</span>.</div>
 
   <section class="panel" aria-label="Pannello di controllo">
-    <h2>Controlli</h2>
+    <h2>Tratta</h2>
+    <div class="presets" id="presets"></div>
     <div class="grid">
-      <div class="field sel span2">
-        <label for="tratta">Tratta</label>
-        <select id="tratta">
-          <option value="portici-napoli">Portici → Napoli (da Portici-Ercolano)</option>
-          <option value="napoli-portici">Napoli → Portici (da Napoli P.za Leopardi)</option>
-        </select>
+      <div class="field sel">
+        <label for="from">Da (partenza)</label>
+        <select id="from"></select>
       </div>
+      <div class="field sel">
+        <label for="to">A (arrivo)</label>
+        <select id="to"></select>
+      </div>
+      <div class="span2 rowbtns">
+        <button class="btn ghost home" id="homeBtn" title="Torna a Portici-Ercolano" aria-label="Torna a Portici-Ercolano">🏠</button>
+        <button class="btn ghost swap" id="swapBtn" title="Inverti tratta" aria-label="Inverti tratta">⇄</button>
+        <button class="btn primary" id="refreshBtn"><span class="spin"></span><span id="refreshTxt">🔄 Aggiorna</span></button>
+        <button class="btn ghost" id="resetBtn" title="Ripristina preferenze">Reset</button>
+      </div>
+    </div>
+    <h2 style="margin-top:16px">Visualizzazione</h2>
+    <div class="grid">
       <div class="field sel">
         <label for="count">Mostra</label>
         <select id="count">
@@ -254,11 +272,6 @@ footer a:hover{text-decoration:underline}
       <div class="field span2">
         <label for="filter">Filtra destinazione</label>
         <input type="text" id="filter" placeholder="es. Salerno, Campi Flegrei…" autocomplete="off">
-      </div>
-      <div class="span2 rowbtns">
-        <button class="btn ghost swap" id="swapBtn" title="Inverti tratta" aria-label="Inverti tratta">⇄</button>
-        <button class="btn primary" id="refreshBtn"><span class="spin"></span><span id="refreshTxt">🔄 Aggiorna</span></button>
-        <button class="btn ghost" id="resetBtn" title="Ripristina preferenze">Reset</button>
       </div>
       <div class="span2 toggles">
         <button class="toggle" id="autoToggle" role="switch" aria-checked="true"><span class="knob"></span>Auto-refresh</button>
@@ -332,14 +345,34 @@ footer a:hover{text-decoration:underline}
     '<rect x="330" y="330" width="64" height="14" rx="7" fill="#123f73" opacity=".55"/></g>'+
     '<rect x="88" y="416" width="344" height="18" rx="9" fill="#2dd4bf"/></svg>';
 
+  var STOPS=[
+    {k:'campi',l:'Napoli Campi Flegrei'},{k:'leopardi',l:'Napoli Piazza Leopardi'},{k:'mergellina',l:'Napoli Mergellina'},
+    {k:'amedeo',l:'Piazza Amedeo'},{k:'montesanto',l:'Napoli Montesanto'},{k:'cavour',l:'Piazza Cavour'},
+    {k:'garibaldi',l:'Napoli Piazza Garibaldi'},{k:'gianturco',l:'Napoli Gianturco'},{k:'barra',l:'Napoli San Giovanni Barra'},
+    {k:'pietrarsa',l:'Pietrarsa-San Giorgio a Cremano'},{k:'portici',l:'Portici-Ercolano'},{k:'torregreco',l:'Torre del Greco'},
+    {k:'smbruna',l:'Santa Maria la Bruna'},{k:'torrecitta',l:'Torre Annunziata Città'},{k:'torrecentrale',l:'Torre Annunziata Centrale'},
+    {k:'pompei',l:'Pompei'},{k:'scafati',l:'Scafati'},{k:'angri',l:'Angri'},{k:'pagani',l:'Pagani'},
+    {k:'nocerainf',l:'Nocera Inferiore'},{k:'nocerasup',l:'Nocera Superiore'},{k:'cava',l:"Cava de' Tirreni"},
+    {k:'vietri',l:'Vietri sul Mare-Amalfi'},{k:'duomo',l:'Duomo-Vietri Vernieri'},{k:'salerno',l:'Salerno'}
+  ];
+  var IDX={};STOPS.forEach(function(s,i){IDX[s.k]=i;});
+  function label(k){for(var i=0;i<STOPS.length;i++)if(STOPS[i].k===k)return STOPS[i].l;return k;}
+  var PRESETS=[
+    {f:'portici',t:'garibaldi',l:'Portici → Napoli'},
+    {f:'leopardi',t:'portici',l:'Napoli → Portici'},
+    {f:'portici',t:'salerno',l:'Portici → Salerno'},
+    {f:'campi',t:'portici',l:'Campi Flegrei → Portici'}
+  ];
+
   var KEY='enea-treni-prefs';
-  var DEF={dir:'portici-napoli',count:6,sort:'orario',filter:'',auto:true,interval:60,
+  var DEF={from:'portici',to:'garibaldi',count:6,sort:'orario',filter:'',auto:true,interval:60,
            theme:(window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light'};
   var state=load();
   var data=[],demo=false,stale=false,lastUpdate=null,busy=false,autoLeft=state.interval,shown=[];
-  var deferredInstall=null,toastTimer=null;
+  var deferredInstall=null,toastTimer=null,lastFrom=state.from,lastTo=state.to;
 
-  function load(){try{var s=JSON.parse(localStorage.getItem(KEY)||'{}');return Object.assign({},DEF,s);}catch(e){return Object.assign({},DEF);}}
+  function load(){try{var s=JSON.parse(localStorage.getItem(KEY)||'{}');var o=Object.assign({},DEF,s);
+    if(IDX[o.from]===undefined)o.from=DEF.from;if(IDX[o.to]===undefined)o.to=DEF.to;if(o.from===o.to)o.to=DEF.to;return o;}catch(e){return Object.assign({},DEF);}}
   function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}}
   function $(id){return document.getElementById(id);}
   function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
@@ -350,30 +383,38 @@ footer a:hover{text-decoration:underline}
   function leftLabel(t){if(isCancel(t.ritardo))return 'Cancellato';var d=depDate(t);if(!d)return '';var n=Math.round((d-Date.now())/60000);if(n<0)return 'Partito';if(n===0)return 'In partenza';return 'tra '+n+' min';}
   function statusClass(t){if(isCancel(t.ritardo))return 'late';var d=delayMin(t.ritardo);if(leftLabel(t)==='Partito')return 'gone';if(d>=10)return 'late';if(d>0)return 'warn';return 'ok';}
 
-  function seed(dir){
-    var out=[],now=Date.now();
-    var dests=dir==='portici-napoli'
-      ?['NAPOLI CAMPI FLEGREI','NAPOLI P.ZZA GARIBALDI','NAPOLI CAMPI FLEGREI','NAPOLI S.GIOVANNI BARRA','NAPOLI CAMPI FLEGREI','NAPOLI P.ZZA GARIBALDI','NAPOLI CAMPI FLEGREI','NAPOLI S.GIOVANNI BARRA','NAPOLI CAMPI FLEGREI','NAPOLI P.ZZA GARIBALDI','NAPOLI CAMPI FLEGREI','NAPOLI S.GIOVANNI BARRA']
-      :['SALERNO','SALERNO','SALERNO','SALERNO','SALERNO','SALERNO','SALERNO','SALERNO','SALERNO','SALERNO','SALERNO','SALERNO'];
+  function seed(){
+    var out=[],now=Date.now(),o=IDX[state.from],t=IDX[state.to],south=t>o;
+    var between=STOPS.slice(Math.min(o,t)+1,Math.max(o,t)+1);
+    if(!south)between=between.slice().reverse();
     var delays=[0,0,4,0,7,0,0,2,0,0,5,0];
     for(var i=0;i<12;i++){
       var d=new Date(now+(3+i*6)*60000);
       var hh=('0'+d.getHours()).slice(-2),mm=('0'+d.getMinutes()).slice(-2);
-      var fer=dir==='portici-napoli'
-        ?'FERMA A:PIETRARSA ('+hh+':'+mm+') - NAPOLI S.G.BARRA ('+hh+':'+mm+') - NA PIAZZA GARIB. ('+hh+':'+mm+') - PIAZZA CAVOUR ('+hh+':'+mm+')'
-        :'FERMA A:PIETRARSA ('+hh+':'+mm+') - PORTICI ERCOLANO ('+hh+':'+mm+') - TORRE DEL GRECO ('+hh+':'+mm+') - POMPEI ('+hh+':'+mm+') - SALERNO ('+hh+':'+mm+')';
-      out.push({treno:String(21310+i),destinazione:dests[i],orario:hh+':'+mm,ritardo:delays[i]?delays[i]+' min':'In orario',binario:'2',vettore:'TRENITALIA',categoria:'REG',fermate:fer});
+      var fer='FERMA A:'+between.map(function(s,j){var dd=new Date(d.getTime()+(j+1)*4*60000);
+        return s.l.toUpperCase()+' ('+dd.getHours()+':'+('0'+dd.getMinutes()).slice(-2)+')';}).join(' - ');
+      out.push({treno:String(21310+i),destinazione:label(state.to).toUpperCase(),orario:hh+':'+mm,
+        ritardo:delays[i]?delays[i]+' min':'In orario',binario:south?'1':'2',vettore:'TRENITALIA',categoria:'REG',fermate:fer});
     }
     return out;
   }
 
+  function buildSelects(){
+    var f=$('from'),t=$('to');
+    f.innerHTML=STOPS.map(function(s){return '<option value="'+s.k+'">'+(s.k==='portici'?'🏠 ':'')+esc(s.l)+'</option>';}).join('');
+    t.innerHTML=STOPS.map(function(s){return '<option value="'+s.k+'">'+(s.k==='portici'?'🏠 ':'')+esc(s.l)+'</option>';}).join('');
+    $('presets').innerHTML=PRESETS.map(function(p,i){return '<button class="preset" data-p="'+i+'">'+esc(p.l)+'</button>';}).join('');
+  }
   function applyControls(){
-    $('tratta').value=state.dir;$('count').value=String(state.count);$('sort').value=state.sort;
+    $('from').value=state.from;$('to').value=state.to;$('count').value=String(state.count);$('sort').value=state.sort;
     $('filter').value=state.filter;$('interval').value=String(state.interval);
     $('autoToggle').setAttribute('aria-checked',state.auto?'true':'false');
     document.documentElement.setAttribute('data-theme',state.theme);
-    $('themeBtn').textContent=state.theme==='dark'?'☀️':'🌙';
+    $('themeBtn').textContent=state.theme==='dark'?'☀️':'';
     document.querySelector('meta[name="theme-color"]').setAttribute('content',state.theme==='dark'?'#07141c':'#123f73');
+    var ps=document.querySelectorAll('.preset');
+    for(var i=0;i<ps.length;i++){var p=PRESETS[+ps[i].getAttribute('data-p')];
+      ps[i].classList.toggle('active',p.f===state.from&&p.t===state.to);}
   }
   function compute(){
     var f=state.filter.trim().toLowerCase();
@@ -401,7 +442,8 @@ footer a:hover{text-decoration:underline}
     $('empty').style.display=(shown.length===0&&!busy)?'block':'none';
     var ok=0,late=0;shown.forEach(function(t){var c=statusClass(t);if(c==='ok')ok++;else if(c!=='gone')late++;});
     var next=shown[0];
-    $('strip').innerHTML='<span class="chip next">'+(next?'Prossimo '+esc(next.orario)+' · '+esc(leftLabel(next)):'—')+'</span>'+
+    $('strip').innerHTML='<span class="chip route">'+esc(label(state.from))+' → '+esc(label(state.to))+'</span>'+
+      '<span class="chip next">'+(next?'Prossimo '+esc(next.orario)+' · '+esc(leftLabel(next)):'—')+'</span>'+
       '<span class="chip ok">'+ok+' in orario</span><span class="chip late">'+late+' in ritardo</span><span class="chip">'+shown.length+' mostrati</span>';
     $('demoBanner').style.display=demo?'flex':'none';
     $('staleBanner').style.display=stale?'flex':'none';
@@ -414,12 +456,13 @@ footer a:hover{text-decoration:underline}
   }
   function refresh(){
     if(busy)return;
+    if(state.from===state.to){toast('Partenza e arrivo coincidono');return;}
     busy=true;$('refreshBtn').classList.add('busy');$('refreshBtn').disabled=true;$('refreshTxt').textContent='Aggiorno…';
     render();
-    fetch('/.netlify/functions/get-treni?dir='+encodeURIComponent(state.dir))
+    fetch('/.netlify/functions/get-treni?from='+encodeURIComponent(state.from)+'&to='+encodeURIComponent(state.to))
       .then(function(r){return r.json();})
       .then(function(d){if(d.error)throw new Error(d.error);data=Array.isArray(d.treni)?d.treni:[];demo=false;stale=false;lastUpdate=new Date();})
-      .catch(function(){if(data.length&&!demo){stale=true;}else{data=seed(state.dir);demo=true;stale=false;}})
+      .catch(function(e){if(data.length&&!demo){stale=true;toast(e.message);}else{data=seed();demo=true;stale=false;}})
       .then(function(){busy=false;autoLeft=state.interval;$('refreshBtn').classList.remove('busy');$('refreshBtn').disabled=false;$('refreshTxt').textContent='🔄 Aggiorna';render();});
   }
   function parseFermate(s){
@@ -447,16 +490,14 @@ footer a:hover{text-decoration:underline}
       $('autoLabel').textContent='Auto-refresh attivo · prossimo tra '+Math.max(autoLeft,0)+'s';}
     else{$('autoLabel').textContent='Auto-refresh disattivato · aggiornamento manuale';}
   }
+  function setRoute(f,t){state.from=f;state.to=t;lastFrom=f;lastTo=t;save();applyControls();refresh();}
 
   function raster(size){
     return new Promise(function(res){
       try{
         var img=new Image();
-        img.onload=function(){
-          try{var c=document.createElement('canvas');c.width=size;c.height=size;
-            var x=c.getContext('2d');x.drawImage(img,0,0,size,size);res(c.toDataURL('image/png'));}
-          catch(e){res(null);}
-        };
+        img.onload=function(){try{var c=document.createElement('canvas');c.width=size;c.height=size;
+          var x=c.getContext('2d');x.drawImage(img,0,0,size,size);res(c.toDataURL('image/png'));}catch(e){res(null);}};
         img.onerror=function(){res(null);};
         img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(ICON_SVG);
       }catch(e){res(null);}
@@ -464,36 +505,42 @@ footer a:hover{text-decoration:underline}
   }
   function setupBranding(){
     $('appIcon').innerHTML=ICON_SVG;
-    var svgUrl='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(ICON_SVG);
-    $('favicon').href=svgUrl;
+    $('favicon').href='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(ICON_SVG);
     Promise.all([raster(180),raster(192),raster(512)]).then(function(png){
       if(png[0])$('appleIcon').href=png[0];
       var icons=[];
       if(png[1])icons.push({src:png[1],sizes:'192x192',type:'image/png',purpose:'any'});
       if(png[2])icons.push({src:png[2],sizes:'512x512',type:'image/png',purpose:'any maskable'});
       if(!icons.length)return;
-      var base=location.href.replace(/[#?].*$/,'');
-      var scope=base.replace(/[^/]*$/,'');
+      var base=location.href.replace(/[#?].*$/,''),scope=base.replace(/[^/]*$/,'');
       var man={name:'ENEA Portici · Partenze Live',short_name:'ENEA Treni',description:'Partenze live Trenitalia per i pendolari ENEA Portici.',
         id:scope,start_url:base,scope:scope,display:'standalone',orientation:'portrait',
         background_color:state.theme==='dark'?'#08161f':'#eef3f2',theme_color:state.theme==='dark'?'#07141c':'#123f73',icons:icons};
-      try{
-        var blob=new Blob([JSON.stringify(man)],{type:'application/manifest+json'});
-        $('manifest').href=URL.createObjectURL(blob);
-      }catch(e){}
+      try{$('manifest').href=URL.createObjectURL(new Blob([JSON.stringify(man)],{type:'application/manifest+json'}));}catch(e){}
     });
   }
 
-  $('tratta').addEventListener('change',function(){state.dir=this.value;save();refresh();});
+  buildSelects();
+  $('from').addEventListener('change',function(){var v=this.value;
+    if(v===state.to){toast('Partenza e arrivo coincidono');this.value=lastFrom;return;}
+    state.from=v;lastFrom=v;save();applyControls();refresh();});
+  $('to').addEventListener('change',function(){var v=this.value;
+    if(v===state.from){toast('Partenza e arrivo coincidono');this.value=lastTo;return;}
+    state.to=v;lastTo=v;save();applyControls();refresh();});
+  $('presets').addEventListener('click',function(e){var b=e.target.closest('.preset');if(!b)return;
+    var p=PRESETS[+b.getAttribute('data-p')];setRoute(p.f,p.t);toast(p.l);});
+  $('homeBtn').addEventListener('click',function(){if(state.from==='portici'){toast('Portici-Ercolano già impostata');return;}
+    setRoute('portici',state.to==='portici'?'garibaldi':state.to);toast('🏠 Portici-Ercolano');});
+  $('swapBtn').addEventListener('click',function(){setRoute(state.to,state.from);toast('Tratta invertita');});
   $('count').addEventListener('change',function(){state.count=+this.value;save();render();});
   $('sort').addEventListener('change',function(){state.sort=this.value;save();render();});
   $('filter').addEventListener('input',function(){state.filter=this.value;save();render();});
   $('interval').addEventListener('change',function(){state.interval=+this.value;autoLeft=state.interval;save();});
   $('autoToggle').addEventListener('click',function(){state.auto=!state.auto;autoLeft=state.interval;this.setAttribute('aria-checked',state.auto?'true':'false');save();toast(state.auto?'Auto-refresh attivato':'Auto-refresh disattivato');});
   $('themeBtn').addEventListener('click',function(){state.theme=state.theme==='dark'?'light':'dark';save();applyControls();});
-  $('swapBtn').addEventListener('click',function(){state.dir=state.dir==='portici-napoli'?'napoli-portici':'portici-napoli';save();applyControls();refresh();toast('Tratta invertita');});
   $('refreshBtn').addEventListener('click',refresh);
-  $('resetBtn').addEventListener('click',function(){try{localStorage.removeItem(KEY);}catch(e){}state=Object.assign({},DEF);autoLeft=state.interval;applyControls();refresh();toast('Preferenze ripristinate');});
+  $('resetBtn').addEventListener('click',function(){try{localStorage.removeItem(KEY);}catch(e){}state=Object.assign({},DEF);
+    lastFrom=state.from;lastTo=state.to;autoLeft=state.interval;applyControls();refresh();toast('Preferenze ripristinate');});
   $('installBtn').addEventListener('click',function(){
     if(deferredInstall){deferredInstall.prompt();deferredInstall.userChoice.then(function(c){if(c.outcome==='accepted')toast('App installata 🎉');deferredInstall=null;});}
     else if(/iphone|ipad|ipod/i.test(navigator.userAgent)){toast('Su iPhone: Condividi → "Aggiungi a Home"');}
