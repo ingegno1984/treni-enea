@@ -1,91 +1,482 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="it" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#0056b3">
-<title>Treni ENEA Portici</title>
+<meta name="theme-color" content="#0e3a4a">
+<meta name="description" content="Partenze live Trenitalia per i pendolari del Centro Ricerche ENEA di Portici. Tratte Portici–Napoli e Napoli–Portici, ritardi e binari in tempo reale.">
+<title>ENEA Portici · Partenze Live</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <style>
-  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:#eef2f5;margin:0;padding:12px;color:#222}
-  .container{max-width:640px;margin:0 auto;background:#fff;border-radius:16px;padding:16px;box-shadow:0 4px 14px rgba(0,0,0,.08)}
-  h1{text-align:center;color:#0056b3;margin:0 0 4px;font-size:1.3rem}
-  .subtitle{text-align:center;color:#777;font-size:.85rem;margin:0 0 16px}
-  label{display:block;font-weight:700;margin:0 0 6px;color:#555;font-size:.9rem}
-  select{width:100%;padding:14px;border:2px solid #dfe6ec;border-radius:12px;font-size:16px;background:#fff;margin-bottom:14px;appearance:none}
-  select:focus{border-color:#0056b3;outline:none}
-  .btn{width:100%;padding:15px;background:#0056b3;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;margin-bottom:8px}
-  .btn:active{background:#004494}
-  .btn:disabled{background:#b9c4cd}
-  .list{margin-top:8px}
-  .train{display:flex;align-items:center;gap:12px;padding:14px 6px;border-bottom:1px solid #eef1f4}
-  .train:last-child{border-bottom:none}
-  .time{font-size:1.45rem;font-weight:800;color:#0056b3;min-width:62px;line-height:1}
-  .mid{flex:1;min-width:0}
-  .dest{font-weight:600;font-size:.98rem;word-break:break-word}
-  .num{color:#98a2ab;font-size:.78rem;margin-top:2px}
-  .right{text-align:right;flex-shrink:0}
-  .badge{display:inline-block;padding:5px 11px;border-radius:999px;font-size:.78rem;font-weight:700;white-space:nowrap}
-  .badge.ok{background:#e6f4ea;color:#1e7e34}
-  .badge.late{background:#fdecea;color:#c62828}
-  .bin{color:#6b7680;font-size:.78rem;margin-top:5px}
-  .msg{text-align:center;padding:22px 10px;color:#777;display:none}
-  .msg.error{color:#c62828;background:#fdecea;border-radius:12px}
-  .update-time{text-align:center;color:#a5afb8;font-size:.75rem;margin-top:12px}
-  @media(max-width:400px){
-    body{padding:8px}
-    .container{padding:12px;border-radius:12px}
-    h1{font-size:1.15rem}
-    .time{font-size:1.25rem;min-width:52px}
-    .dest{font-size:.9rem}
-  }
+:root{
+  --ink:#0e2530; --ink-2:#12384a; --teal:#0f766e; --teal-br:#14b8a6;
+  --blue:#1d4ed8; --blue-br:#3b82f6; --sky:#0ea5e9;
+  --green:#15803d; --green-br:#22c55e; --amber:#b45309; --amber-br:#f59e0b;
+  --red:#b91c1c; --red-br:#ef4444; --led:#ffb454;
+  --bg:#eef3f2; --bg-2:#e2eae8; --surface:#ffffff; --surface-2:#f6faf9;
+  --line:#d8e2e0; --text:#12242e; --muted:#5b7280; --scrim:rgba(10,25,32,.45);
+  --ring:rgba(20,184,166,.35); --shadow:0 10px 30px rgba(14,37,48,.10);
+  --disp:"Space Grotesk",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+[data-theme="dark"]{
+  --ink:#07141c; --ink-2:#0c2230; --teal:#0d9488; --teal-br:#2dd4bf;
+  --blue:#3b82f6; --blue-br:#60a5fa; --sky:#38bdf8;
+  --green:#4ade80; --green-br:#22c55e; --amber:#fbbf24; --amber-br:#f59e0b;
+  --red:#f87171; --red-br:#ef4444; --led:#ffc46b;
+  --bg:#08161f; --bg-2:#0b1e29; --surface:#0f2431; --surface-2:#132c3b;
+  --line:#1d3a4a; --text:#e6f1f2; --muted:#8fa8b3; --scrim:rgba(2,8,12,.6);
+  --ring:rgba(45,212,191,.35); --shadow:0 12px 34px rgba(0,0,0,.45);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{
+  margin:0;font-family:var(--disp);color:var(--text);background:var(--bg);
+  padding:0 12px 40px;min-height:100vh;overflow-x:hidden;
+  transition:background .35s ease,color .35s ease;
+}
+::selection{background:var(--teal-br);color:#04222b}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:var(--bg-2)}
+::-webkit-scrollbar-thumb{background:var(--teal);border-radius:8px;border:2px solid var(--bg-2)}
+::-webkit-scrollbar-thumb:hover{background:var(--teal-br)}
+*{scrollbar-width:thin;scrollbar-color:var(--teal) var(--bg-2)}
+
+.aurora{position:fixed;inset:0;z-index:-2;overflow:hidden;pointer-events:none}
+.aurora span{position:absolute;border-radius:50%;filter:blur(70px);opacity:.5;animation:drift 26s ease-in-out infinite alternate}
+.aurora .a1{width:46vw;height:46vw;left:-12vw;top:-14vw;background:radial-gradient(circle at 30% 30%,var(--teal-br),transparent 65%)}
+.aurora .a2{width:40vw;height:40vw;right:-10vw;top:6vh;background:radial-gradient(circle at 60% 40%,var(--blue-br),transparent 65%);animation-delay:-8s}
+.aurora .a3{width:36vw;height:36vw;left:22vw;bottom:-16vw;background:radial-gradient(circle at 50% 50%,var(--green-br),transparent 65%);animation-delay:-16s}
+[data-theme="dark"] .aurora span{opacity:.28}
+@keyframes drift{from{transform:translate3d(0,0,0) scale(1)}to{transform:translate3d(6vw,4vh,0) scale(1.15)}}
+.grain{position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.06;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+.wrap{max-width:680px;margin:0 auto}
+header.top{
+  position:sticky;top:0;z-index:40;margin:0 -12px;padding:14px 16px 12px;
+  background:linear-gradient(120deg,var(--ink),var(--ink-2) 55%,var(--teal));
+  color:#eafcf9;border-bottom:1px solid rgba(255,255,255,.08);
+  transition:box-shadow .3s ease,padding .3s ease;
+}
+header.top.scrolled{box-shadow:0 8px 24px rgba(4,20,28,.35);padding:10px 16px}
+.topline{display:flex;align-items:center;gap:12px;max-width:680px;margin:0 auto}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.logo{width:38px;height:38px;flex:0 0 38px;border-radius:11px;display:grid;place-items:center;
+  background:linear-gradient(140deg,var(--teal-br),var(--blue-br));color:#03202a;font-weight:700;font-size:19px;
+  box-shadow:0 0 0 1px rgba(255,255,255,.25) inset,0 6px 16px rgba(0,0,0,.25)}
+.brand h1{margin:0;font-size:1.06rem;letter-spacing:.02em;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand small{display:block;font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:#9fd8cf;font-weight:600}
+.clock{margin-left:auto;text-align:right;font-family:var(--mono);line-height:1.15}
+.clock b{display:block;font-size:1.16rem;font-weight:600;color:var(--led);text-shadow:0 0 14px rgba(255,180,84,.45)}
+.clock span{font-size:.66rem;color:#a9c9c4;text-transform:capitalize}
+.iconbtn{width:38px;height:38px;flex:0 0 38px;border-radius:11px;border:1px solid rgba(255,255,255,.22);
+  background:rgba(255,255,255,.08);color:#eafcf9;cursor:pointer;display:grid;place-items:center;font-size:16px;transition:.2s}
+.iconbtn:hover{background:rgba(255,255,255,.18);transform:translateY(-1px)}
+.iconbtn:active{transform:scale(.94)}
+
+.banner{max-width:680px;margin:12px auto 0;border-radius:12px;padding:10px 14px;font-size:.82rem;font-weight:600;display:none;align-items:center;gap:8px}
+.banner.demo{display:flex;background:color-mix(in srgb,var(--amber-br) 18%,var(--surface));color:var(--amber);border:1px solid color-mix(in srgb,var(--amber-br) 45%,transparent)}
+.banner.stale{display:flex;background:color-mix(in srgb,var(--sky) 14%,var(--surface));color:var(--sky);border:1px solid color-mix(in srgb,var(--sky) 40%,transparent)}
+
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);
+  padding:16px;margin:16px auto 0;max-width:680px}
+.panel h2{margin:0 0 12px;font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.field{position:relative;min-width:0}
+.field label{display:block;font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 5px}
+.field select,.field input[type="text"]{
+  width:100%;padding:12px 34px 12px 12px;border:1.5px solid var(--line);border-radius:12px;background:var(--surface-2);
+  color:var(--text);font-family:var(--disp);font-size:.92rem;font-weight:600;appearance:none;transition:border-color .2s,box-shadow .2s}
+.field input[type="text"]{padding-right:12px}
+.field select:focus,.field input:focus{outline:none;border-color:var(--teal-br);box-shadow:0 0 0 4px var(--ring)}
+.field.sel::after{content:"";position:absolute;right:13px;bottom:17px;width:8px;height:8px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg);pointer-events:none}
+.span2{grid-column:1/-1}
+.rowbtns{display:flex;gap:10px;align-items:stretch;flex-wrap:wrap}
+.btn{flex:1;min-width:120px;padding:13px 14px;border:none;border-radius:12px;cursor:pointer;font-family:var(--disp);
+  font-size:.92rem;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:.2s}
+.btn.primary{background:linear-gradient(120deg,var(--blue),var(--teal));color:#fff;box-shadow:0 8px 20px color-mix(in srgb,var(--blue) 35%,transparent)}
+.btn.primary:hover{filter:brightness(1.08);transform:translateY(-1px)}
+.btn.primary:active{transform:scale(.98)}
+.btn.primary:disabled{opacity:.6;cursor:wait;transform:none}
+.btn.ghost{background:var(--surface-2);color:var(--text);border:1.5px solid var(--line)}
+.btn.ghost:hover{border-color:var(--teal-br);color:var(--teal)}
+.spin{width:15px;height:15px;border-radius:50%;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;animation:rot .7s linear infinite;display:none}
+.busy .spin{display:inline-block}
+@keyframes rot{to{transform:rotate(360deg)}}
+.swap{flex:0 0 46px;min-width:46px;padding:0;font-size:17px}
+.swap:hover{transform:rotate(180deg)}
+.toggles{display:flex;gap:10px;flex-wrap:wrap}
+.toggle{flex:1;min-width:130px;display:flex;align-items:center;gap:10px;padding:11px 12px;border:1.5px solid var(--line);
+  border-radius:12px;background:var(--surface-2);cursor:pointer;font-size:.84rem;font-weight:700;color:var(--text);transition:.2s}
+.toggle:hover{border-color:var(--teal-br)}
+.toggle .knob{width:38px;height:22px;flex:0 0 38px;border-radius:999px;background:var(--line);position:relative;transition:.25s}
+.toggle .knob::after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:var(--surface);transition:.25s;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.toggle[aria-checked="true"] .knob{background:var(--teal-br)}
+.toggle[aria-checked="true"] .knob::after{left:19px}
+.autoinfo{font-family:var(--mono);font-size:.7rem;color:var(--muted);margin-top:10px;text-align:right}
+
+.strip{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:14px auto 0;max-width:680px;font-size:.78rem;font-weight:700}
+.chip{padding:6px 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--muted)}
+.chip.ok{color:var(--green);border-color:color-mix(in srgb,var(--green-br) 45%,transparent);background:color-mix(in srgb,var(--green-br) 12%,var(--surface))}
+.chip.late{color:var(--red);border-color:color-mix(in srgb,var(--red-br) 45%,transparent);background:color-mix(in srgb,var(--red-br) 12%,var(--surface))}
+.chip.next{color:var(--teal);border-color:color-mix(in srgb,var(--teal-br) 45%,transparent);background:color-mix(in srgb,var(--teal-br) 12%,var(--surface));font-family:var(--mono)}
+
+.list{max-width:680px;margin:12px auto 0;display:flex;flex-direction:column;gap:10px}
+.train{position:relative;display:flex;align-items:center;gap:14px;padding:15px 16px 15px 20px;border-radius:16px;
+  background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow);cursor:pointer;overflow:hidden;
+  animation:pop .45s cubic-bezier(.2,.8,.2,1) both;transition:transform .2s,box-shadow .2s,border-color .2s}
+.train:hover{transform:translateY(-2px);border-color:var(--teal-br)}
+.train:active{transform:scale(.99)}
+.train::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--green-br)}
+.train.warn::before{background:var(--amber-br)}
+.train.late::before{background:var(--red-br)}
+.train.gone::before{background:var(--line)}
+.train.next{border-color:var(--teal-br);box-shadow:0 0 0 3px var(--ring),var(--shadow)}
+@keyframes pop{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.time{font-family:var(--mono);font-size:1.5rem;font-weight:600;min-width:66px;line-height:1;color:var(--ink-2)}
+[data-theme="dark"] .time{color:var(--led);text-shadow:0 0 16px rgba(255,196,107,.35)}
+.mid{flex:1;min-width:0}
+.dest{font-weight:700;font-size:.98rem;word-break:break-word}
+.num{color:var(--muted);font-size:.74rem;margin-top:3px;font-family:var(--mono)}
+.tag-next{display:inline-block;margin-left:8px;padding:2px 8px;border-radius:999px;font-size:.6rem;letter-spacing:.12em;
+  background:var(--teal-br);color:#03202a;font-weight:700;vertical-align:middle}
+.right{text-align:right;flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:5px}
+.badge{padding:5px 11px;border-radius:999px;font-size:.74rem;font-weight:700;white-space:nowrap}
+.badge.ok{background:color-mix(in srgb,var(--green-br) 16%,var(--surface));color:var(--green)}
+.badge.warn{background:color-mix(in srgb,var(--amber-br) 18%,var(--surface));color:var(--amber)}
+.badge.late{background:color-mix(in srgb,var(--red-br) 16%,var(--surface));color:var(--red)}
+.badge.gone{background:var(--surface-2);color:var(--muted)}
+.sub{font-size:.72rem;color:var(--muted);font-family:var(--mono)}
+.sub b{color:var(--teal);font-weight:600}
+
+.skel{border-radius:16px;height:78px;background:linear-gradient(100deg,var(--surface) 40%,var(--surface-2) 50%,var(--surface) 60%);
+  background-size:200% 100%;animation:sh 1.2s linear infinite;border:1px solid var(--line)}
+@keyframes sh{to{background-position:-200% 0}}
+.empty{max-width:680px;margin:14px auto 0;text-align:center;padding:34px 18px;border-radius:16px;border:1.5px dashed var(--line);color:var(--muted);background:var(--surface)}
+.empty b{display:block;font-size:1.05rem;color:var(--text);margin-bottom:6px}
+
+footer{max-width:680px;margin:22px auto 0;text-align:center;font-size:.7rem;color:var(--muted);line-height:1.6}
+footer a{color:var(--teal);text-decoration:none;font-weight:600}
+footer a:hover{text-decoration:underline}
+
+.scrim{position:fixed;inset:0;background:var(--scrim);backdrop-filter:blur(3px);opacity:0;pointer-events:none;transition:opacity .3s;z-index:60}
+.scrim.open{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(420px,100%);background:var(--surface);z-index:70;
+  transform:translateX(102%);transition:transform .35s cubic-bezier(.2,.8,.2,1);box-shadow:-16px 0 40px rgba(0,0,0,.25);
+  display:flex;flex-direction:column;border-left:1px solid var(--line)}
+.drawer.open{transform:translateX(0)}
+.drawer header{padding:18px 20px;background:linear-gradient(120deg,var(--ink),var(--teal));color:#eafcf9;display:flex;align-items:center;gap:12px}
+.drawer header .t{font-family:var(--mono);font-size:1.6rem;color:var(--led)}
+.drawer header .d{font-weight:700;font-size:.95rem;flex:1;min-width:0}
+.drawer .body{padding:18px 20px;overflow-y:auto;flex:1}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:8px 16px;font-size:.86rem;margin-bottom:18px}
+.kv dt{color:var(--muted);font-weight:600}
+.kv dd{margin:0;font-weight:700;font-family:var(--mono)}
+.stops{list-style:none;margin:0;padding:0;position:relative}
+.stops::before{content:"";position:absolute;left:7px;top:8px;bottom:8px;width:2px;background:var(--line)}
+.stops li{position:relative;padding:0 0 14px 28px;font-size:.86rem}
+.stops li::before{content:"";position:absolute;left:2px;top:4px;width:12px;height:12px;border-radius:50%;background:var(--surface);border:3px solid var(--teal-br)}
+.stops li b{font-family:var(--mono);color:var(--teal);margin-right:8px}
+.drawer h3{font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin:0 0 12px}
+@media(max-width:560px){
+  .grid{grid-template-columns:1fr}
+  .time{font-size:1.3rem;min-width:56px}
+  .brand h1{font-size:.95rem}
+  .drawer{top:auto;height:78vh;width:100%;border-left:none;border-top:1px solid var(--line);border-radius:20px 20px 0 0;transform:translateY(102%)}
+  .drawer.open{transform:translateY(0)}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001s!important;transition-duration:.001s!important}
+  html{scroll-behavior:auto}
+}
 </style>
 </head>
 <body>
-<div class="container">
-  <h1>🚆 Treni ENEA Portici</h1>
-  <p class="subtitle">Dati in tempo reale da RFI</p>
+<div class="aurora" aria-hidden="true"><span class="a1"></span><span class="a2"></span><span class="a3"></span></div>
+<div class="grain" aria-hidden="true"></div>
 
-  <label for="tratta">Tratta:</label>
-  <select id="tratta">
-    <option value="portici-napoli">Portici → Napoli (da Portici-Ercolano)</option>
-    <option value="napoli-portici">Napoli → Portici (da Napoli P.za Leopardi)</option>
-  </select>
+<header class="top" id="top">
+  <div class="topline">
+    <div class="brand">
+      <div class="logo">🚆</div>
+      <div>
+        <small>Centro Ricerche ENEA · Portici</small>
+        <h1>Partenze Live</h1>
+      </div>
+    </div>
+    <div class="clock"><b id="clock">--:--:--</b><span id="date">—</span></div>
+    <button class="iconbtn" id="themeBtn" title="Cambia tema" aria-label="Cambia tema chiaro/scuro">🌙</button>
+  </div>
+</header>
 
-  <button class="btn" id="btn" onclick="carica()">🔄 Aggiorna Orari</button>
+<div class="wrap">
+  <div class="banner demo" id="demoBanner">⚠️ Modalità dimostrativa: backend non raggiungibile, i dati mostrati non sono reali.</div>
+  <div class="banner stale" id="staleBanner">📡 Dati non aggiornati: ultima lettura riuscita alle <span id="staleTime">—</span>.</div>
 
-  <div id="load" class="msg">⏳ Caricamento...</div>
-  <div id="err" class="msg error"></div>
-  <div id="list" class="list"></div>
-  <div id="time" class="update-time"></div>
+  <section class="panel" aria-label="Pannello di controllo">
+    <h2>Controlli</h2>
+    <div class="grid">
+      <div class="field sel span2">
+        <label for="tratta">Tratta</label>
+        <select id="tratta">
+          <option value="portici-napoli">Portici → Napoli (da Portici-Ercolano)</option>
+          <option value="napoli-portici">Napoli → Portici (da Napoli P.za Leopardi)</option>
+        </select>
+      </div>
+      <div class="field sel">
+        <label for="count">Mostra</label>
+        <select id="count">
+          <option value="3">3 treni</option>
+          <option value="6">6 treni</option>
+          <option value="9">9 treni</option>
+          <option value="12">12 treni</option>
+        </select>
+      </div>
+      <div class="field sel">
+        <label for="sort">Ordina per</label>
+        <select id="sort">
+          <option value="orario">Orario di partenza</option>
+          <option value="ritardo">Ritardo maggiore</option>
+        </select>
+      </div>
+      <div class="field span2">
+        <label for="filter">Filtra destinazione</label>
+        <input type="text" id="filter" placeholder="es. Salerno, Campi Flegrei…" autocomplete="off">
+      </div>
+      <div class="span2 rowbtns">
+        <button class="btn ghost swap" id="swapBtn" title="Inverti tratta" aria-label="Inverti tratta">⇄</button>
+        <button class="btn primary" id="refreshBtn"><span class="spin"></span><span id="refreshTxt">🔄 Aggiorna</span></button>
+        <button class="btn ghost" id="resetBtn" title="Ripristina preferenze">Reset</button>
+      </div>
+      <div class="span2 toggles">
+        <button class="toggle" id="autoToggle" role="switch" aria-checked="true"><span class="knob"></span>Auto-refresh</button>
+        <div class="field sel" style="flex:1;min-width:130px">
+          <label for="interval">Ogni</label>
+          <select id="interval">
+            <option value="30">30 secondi</option>
+            <option value="60">60 secondi</option>
+            <option value="120">2 minuti</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="autoinfo" id="autoLabel">—</div>
+  </section>
+
+  <div class="strip" id="strip" aria-live="polite"></div>
+  <div class="list" id="list"></div>
+  <div class="empty" id="empty" style="display:none"><b>Nessun treno trovato</b>Prova a cambiare tratta, filtro o aggiorna gli orari.</div>
+
+  <footer>
+    Fonte: <a href="https://iechub.rfi.it/ArriviPartenze/ArrivalsDepartures/" target="_blank" rel="noopener">RFI · iechub.rfi.it</a> — orari, ritardi e binari live.<br>
+    Strumento non ufficiale a supporto dei pendolari ENEA Portici.
+  </footer>
 </div>
 
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-label="Dettaglio treno">
+  <header>
+    <div class="t" id="dTime">--:--</div>
+    <div class="d" id="dDest">—</div>
+    <button class="iconbtn" id="dClose" aria-label="Chiudi dettaglio">✕</button>
+  </header>
+  <div class="body">
+    <dl class="kv">
+      <dt>Treno</dt><dd id="dNum">—</dd>
+      <dt>Stato</dt><dd id="dStatus">—</dd>
+      <dt>Binario</dt><dd id="dBin">—</dd>
+      <dt>Vettore</dt><dd id="dVett">—</dd>
+      <dt>Categoria</dt><dd id="dCat">—</dd>
+    </dl>
+    <h3>Fermate successive</h3>
+    <ul class="stops" id="dStops"></ul>
+  </div>
+</aside>
+
+<noscript><div class="empty" style="display:block"><b>JavaScript disattivato</b>Attiva JavaScript per vedere le partenze live.</div></noscript>
+
 <script>
-function card(t){
-  var late = t.ritardo && t.ritardo !== 'In orario';
-  return '<div class="train">' +
-    '<div class="time">' + t.orario + '</div>' +
-    '<div class="mid"><div class="dest">' + t.destinazione + '</div><div class="num">Treno ' + t.treno + '</div></div>' +
-    '<div class="right"><span class="badge ' + (late ? 'late' : 'ok') + '">' + (t.ritardo || 'In orario') + '</span>' +
-    '<div class="bin">Bin. ' + (t.binario || '-') + '</div></div></div>';
-}
-async function carica(){
-  var btn=document.getElementById('btn'),load=document.getElementById('load'),
-      err=document.getElementById('err'),list=document.getElementById('list'),
-      time=document.getElementById('time');
-  btn.disabled=true;load.style.display='block';err.style.display='none';list.innerHTML='';time.textContent='';
-  try{
-    var r=await fetch('/.netlify/functions/get-treni?dir='+document.getElementById('tratta').value);
-    var d=await r.json();
-    if(d.error) throw new Error(d.error);
-    if(!d.treni || d.treni.length===0){ list.innerHTML='<div class="msg" style="display:block">Nessun treno in partenza a breve.</div>'; }
-    else{ list.innerHTML = d.treni.slice(0,6).map(card).join(''); }
-    time.textContent='Ultimo aggiornamento: '+new Date().toLocaleTimeString('it-IT');
-  }catch(e){ err.textContent='⚠️ '+e.message; err.style.display='block'; }
-  btn.disabled=false;load.style.display='none';
-}
-window.onload=carica;
-document.getElementById('tratta').addEventListener('change',carica);
+(function(){
+  "use strict";
+  var KEY='enea-treni-prefs';
+  var DEF={dir:'portici-napoli',count:6,sort:'orario',filter:'',auto:true,interval:60,
+           theme:(window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light'};
+  var state=load();
+  var data=[],demo=false,stale=false,lastUpdate=null,busy=false,autoLeft=state.interval,shown=[];
+
+  function load(){try{var s=JSON.parse(localStorage.getItem(KEY)||'{}');return Object.assign({},DEF,s);}catch(e){return Object.assign({},DEF);}}
+  function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}}
+  function $(id){return document.getElementById(id);}
+  function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+  function delayMin(r){if(!r||/in orario/i.test(r))return 0;var m=String(r).match(/(\d+)/);return m?+m[1]:0;}
+  function isCancel(r){return /cancellat/i.test(String(r||''));}
+  function depDate(t){var m=String(t.orario||'').match(/(\d{1,2}):(\d{2})/);if(!m)return null;
+    var d=new Date();d.setHours(+m[1],+m[2],0,0);d.setMinutes(d.getMinutes()+delayMin(t.ritardo));return d;}
+  function leftLabel(t){if(isCancel(t.ritardo))return 'Cancellato';var d=depDate(t);if(!d)return '';
+    var n=Math.round((d-Date.now())/60000);if(n<0)return 'Partito';if(n===0)return 'In partenza';return 'tra '+n+' min';}
+  function statusClass(t){if(isCancel(t.ritardo))return 'late';var d=delayMin(t.ritardo);
+    var l=leftLabel(t);if(l==='Partito')return 'gone';if(d>=10)return 'late';if(d>0)return 'warn';return 'ok';}
+
+  function seed(dir){
+    var out=[],now=Date.now();
+    var dests=dir==='portici-napoli'
+      ?['NAPOLI CAMPI FLEGREI','NAPOLI P.ZZA GARIBALDI','NAPOLI CAMPI FLEGREI','NAPOLI S.GIOVANNI BARRA','NAPOLI CAMPI FLEGREI','NAPOLI P.ZZA GARIBALDI','NAPOLI CAMPI FLEGREI','NAPOLI S.GIOVANNI BARRA','NAPOLI CAMPI FLEGREI','NAPOLI P.ZZA GARIBALDI','NAPOLI CAMPI FLEGREI','NAPOLI S.GIOVANNI BARRA']
+      :['SALERNO','SALERNO','SALERNO','SALERNO','SALERNO','SALERNO','SALERNO','SALERNO','SALERNO','SALERNO','SALERNO','SALERNO'];
+    var delays=[0,0,4,0,7,0,0,2,0,0,5,0];
+    for(var i=0;i<12;i++){
+      var d=new Date(now+(3+i*6)*60000);
+      var hh=('0'+d.getHours()).slice(-2),mm=('0'+d.getMinutes()).slice(-2);
+      var fer=dir==='portici-napoli'
+        ?'FERMA A:PIETRARSA ('+hh+':'+mm+') - NAPOLI S.G.BARRA ('+hh+':'+mm+') - NA PIAZZA GARIB. ('+hh+':'+mm+') - PIAZZA CAVOUR ('+hh+':'+mm+')'
+        :'FERMA A:PIETRARSA ('+hh+':'+mm+') - PORTICI ERCOLANO ('+hh+':'+mm+') - TORRE DEL GRECO ('+hh+':'+mm+') - POMPEI ('+hh+':'+mm+') - SALERNO ('+hh+':'+mm+')';
+      out.push({treno:String(21310+i),destinazione:dests[i],orario:hh+':'+mm,
+        ritardo:delays[i]?delays[i]+' min':'In orario',binario:dir==='portici-napoli'?'2':'2',
+        vettore:'TRENITALIA',categoria:'REG',fermate:fer});
+    }
+    return out;
+  }
+
+  function applyControls(){
+    $('tratta').value=state.dir;$('count').value=String(state.count);$('sort').value=state.sort;
+    $('filter').value=state.filter;$('interval').value=String(state.interval);
+    $('autoToggle').setAttribute('aria-checked',state.auto?'true':'false');
+    document.documentElement.setAttribute('data-theme',state.theme);
+    $('themeBtn').textContent=state.theme==='dark'?'☀️':'🌙';
+    document.querySelector('meta[name="theme-color"]').setAttribute('content',state.theme==='dark'?'#07141c':'#0e3a4a');
+  }
+
+  function compute(){
+    var f=state.filter.trim().toLowerCase();
+    var arr=data.filter(function(t){return !f||String(t.destinazione).toLowerCase().indexOf(f)>=0;});
+    arr.sort(state.sort==='ritardo'
+      ?function(a,b){return delayMin(b.ritardo)-delayMin(a.ritardo)||String(a.orario).localeCompare(String(b.orario));}
+      :function(a,b){return String(a.orario).localeCompare(String(b.orario));});
+    shown=arr.slice(0,state.count);
+  }
+
+  function card(t,i){
+    var cls=statusClass(t),left=leftLabel(t);
+    var badge=cls==='gone'?'gone':cls;
+    var badgeTxt=isCancel(t.ritardo)?'Cancellato':(delayMin(t.ritardo)?'+'+delayMin(t.ritardo)+' min':'In orario');
+    return '<article class="train '+cls+(i===0?' next':'')+'" data-i="'+i+'" style="animation-delay:'+(i*0.05)+'s" tabindex="0" role="button" aria-label="Dettaglio treno '+esc(t.treno)+'">'+
+      '<div class="time">'+esc(t.orario)+'</div>'+
+      '<div class="mid"><div class="dest">'+esc(t.destinazione)+(i===0?'<span class="tag-next">PROSSIMO</span>':'')+'</div>'+
+      '<div class="num">Treno '+esc(t.treno)+(t.categoria?' · '+esc(t.categoria):'')+'</div></div>'+
+      '<div class="right"><span class="badge '+badge+'">'+badgeTxt+'</span>'+
+      '<span class="sub">Bin. '+esc(t.binario||'-')+'</span>'+
+      '<span class="sub" data-dep="'+i+'"><b>'+esc(left)+'</b></span></div></article>';
+  }
+
+  function render(){
+    compute();
+    var list=$('list');
+    if(busy&&data.length===0){list.innerHTML='<div class="skel"></div><div class="skel"></div><div class="skel"></div>';}
+    else{list.innerHTML=shown.map(card).join('');}
+    $('empty').style.display=(shown.length===0&&!busy)?'block':'none';
+    var ok=0,late=0;shown.forEach(function(t){if(statusClass(t)==='ok')ok++;else if(statusClass(t)!=='gone')late++;});
+    var next=shown[0];
+    $('strip').innerHTML=
+      '<span class="chip next">'+(next?'Prossimo '+esc(next.orario)+' · '+esc(leftLabel(next)):'—')+'</span>'+
+      '<span class="chip ok">'+ok+' in orario</span>'+
+      '<span class="chip late">'+late+' in ritardo</span>'+
+      '<span class="chip">'+shown.length+' mostrati</span>';
+    $('demoBanner').className='banner demo'+(demo?'':'');
+    $('demoBanner').style.display=demo?'flex':'none';
+    $('staleBanner').style.display=stale?'flex':'none';
+    if(stale&&lastUpdate)$('staleTime').textContent=lastUpdate.toLocaleTimeString('it-IT');
+    tickCountdowns();
+  }
+
+  function tickCountdowns(){
+    var nodes=document.querySelectorAll('[data-dep]');
+    for(var i=0;i<nodes.length;i++){
+      var t=shown[+nodes[i].getAttribute('data-dep')];
+      if(t)nodes[i].innerHTML='<b>'+esc(leftLabel(t))+'</b>';
+    }
+  }
+
+  function refresh(){
+    if(busy)return;
+    busy=true;$('refreshBtn').classList.add('busy');$('refreshBtn').disabled=true;$('refreshTxt').textContent='Aggiorno…';
+    render();
+    fetch('/.netlify/functions/get-treni?dir='+encodeURIComponent(state.dir))
+      .then(function(r){return r.json();})
+      .then(function(d){
+        if(d.error)throw new Error(d.error);
+        data=Array.isArray(d.treni)?d.treni:[];demo=false;stale=false;lastUpdate=new Date();
+      })
+      .catch(function(){
+        if(data.length&&!demo){stale=true;}
+        else{data=seed(state.dir);demo=true;stale=false;}
+      })
+      .then(function(){
+        busy=false;autoLeft=state.interval;
+        $('refreshBtn').classList.remove('busy');$('refreshBtn').disabled=false;$('refreshTxt').textContent='🔄 Aggiorna';
+        render();
+      });
+  }
+
+  function openDrawer(i){
+    var t=shown[i];if(!t)return;
+    $('dTime').textContent=t.orario;$('dDest').textContent=t.destinazione;
+    $('dNum').textContent=t.treno;$('dStatus').textContent=t.ritardo||'In orario';
+    $('dBin').textContent=t.binario||'-';$('dVett').textContent=t.vettore||'—';$('dCat').textContent=t.categoria||'—';
+    var stops=parseFermate(t.fermate);
+    $('dStops').innerHTML=stops.length
+      ?stops.map(function(s){return '<li><b>'+esc(s.time)+'</b>'+esc(s.stop)+'</li>';}).join('')
+      :'<li style="padding-left:0;color:var(--muted)">Fermate non disponibili.</li>';
+    $('drawer').classList.add('open');$('scrim').classList.add('open');document.body.style.overflow='hidden';
+  }
+  function closeDrawer(){$('drawer').classList.remove('open');$('scrim').classList.remove('open');document.body.style.overflow='';}
+  function parseFermate(s){
+    if(!s)return[];var idx=s.indexOf('FERMA A:');var body=idx>=0?s.slice(idx+8):s;
+    var out=[],re=/([^()]+?)\s*\((\d{1,2}:\d{2})\)/g,m;
+    while((m=re.exec(body))){out.push({stop:m[1].replace(/^[-\s]+/,'').trim(),time:m[2]});}
+    return out;
+  }
+
+  function tick(){
+    var n=new Date();
+    $('clock').textContent=n.toLocaleTimeString('it-IT');
+    $('date').textContent=n.toLocaleDateString('it-IT',{weekday:'short',day:'numeric',month:'short'});
+    tickCountdowns();
+    if(state.auto){
+      autoLeft--;
+      if(autoLeft<=0){if(!busy&&!document.hidden)refresh();autoLeft=state.interval;}
+      $('autoLabel').textContent='Auto-refresh attivo · prossimo tra '+Math.max(autoLeft,0)+'s';
+    }else{$('autoLabel').textContent='Auto-refresh disattivato · aggiornamento manuale';}
+  }
+
+  $('tratta').addEventListener('change',function(){state.dir=this.value;save();refresh();});
+  $('count').addEventListener('change',function(){state.count=+this.value;save();render();});
+  $('sort').addEventListener('change',function(){state.sort=this.value;save();render();});
+  $('filter').addEventListener('input',function(){state.filter=this.value;save();render();});
+  $('interval').addEventListener('change',function(){state.interval=+this.value;autoLeft=state.interval;save();});
+  $('autoToggle').addEventListener('click',function(){state.auto=!state.auto;autoLeft=state.interval;
+    this.setAttribute('aria-checked',state.auto?'true':'false');save();});
+  $('themeBtn').addEventListener('click',function(){state.theme=state.theme==='dark'?'light':'dark';save();applyControls();});
+  $('swapBtn').addEventListener('click',function(){state.dir=state.dir==='portici-napoli'?'napoli-portici':'portici-napoli';
+    save();applyControls();refresh();});
+  $('refreshBtn').addEventListener('click',refresh);
+  $('resetBtn').addEventListener('click',function(){try{localStorage.removeItem(KEY);}catch(e){}
+    state=Object.assign({},DEF);autoLeft=state.interval;applyControls();refresh();});
+  $('list').addEventListener('click',function(e){var c=e.target.closest('.train');if(c)openDrawer(+c.getAttribute('data-i'));});
+  $('list').addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){var c=e.target.closest('.train');
+    if(c){e.preventDefault();openDrawer(+c.getAttribute('data-i'));}}});
+  $('dClose').addEventListener('click',closeDrawer);
+  $('scrim').addEventListener('click',closeDrawer);
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')closeDrawer();});
+  window.addEventListener('scroll',function(){$('top').classList.toggle('scrolled',window.scrollY>8);},{passive:true});
+
+  applyControls();
+  render();
+  refresh();
+  setInterval(tick,1000);
+  tick();
+})();
 </script>
 </body>
 </html>
