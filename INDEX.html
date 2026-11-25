@@ -1,102 +1,91 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Treni Portici-Ercolano → Napoli</title>
-    <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; color: #333; }
-        .container { max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        h1 { text-align: center; color: #0056b3; margin-bottom: 5px; }
-        .subtitle { text-align: center; color: #666; font-size: 0.9em; margin-bottom: 20px; }
-        .btn { display: block; width: 100%; padding: 12px; background-color: #0056b3; color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; margin-bottom: 20px; }
-        .btn:hover { background-color: #004494; }
-        .btn:disabled { background-color: #ccc; cursor: not-allowed; }
-        table { width: 100%; border-collapse: collapse; }
-        th { text-align: left; padding: 10px; background-color: #e9ecef; color: #495057; font-size: 0.85em; text-transform: uppercase; }
-        td { padding: 12px 10px; border-bottom: 1px solid #eee; font-size: 0.95em; }
-        .ritardo { color: #d9534f; font-weight: bold; }
-        .orario { color: #28a745; font-weight: bold; }
-        .loading { text-align: center; padding: 20px; color: #666; display: none; }
-        .error { text-align: center; padding: 20px; color: #d9534f; background: #f9e2e2; border-radius: 8px; display: none; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0056b3">
+<title>Treni ENEA Portici</title>
+<style>
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:#eef2f5;margin:0;padding:12px;color:#222}
+  .container{max-width:640px;margin:0 auto;background:#fff;border-radius:16px;padding:16px;box-shadow:0 4px 14px rgba(0,0,0,.08)}
+  h1{text-align:center;color:#0056b3;margin:0 0 4px;font-size:1.3rem}
+  .subtitle{text-align:center;color:#777;font-size:.85rem;margin:0 0 16px}
+  label{display:block;font-weight:700;margin:0 0 6px;color:#555;font-size:.9rem}
+  select{width:100%;padding:14px;border:2px solid #dfe6ec;border-radius:12px;font-size:16px;background:#fff;margin-bottom:14px;appearance:none}
+  select:focus{border-color:#0056b3;outline:none}
+  .btn{width:100%;padding:15px;background:#0056b3;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;margin-bottom:8px}
+  .btn:active{background:#004494}
+  .btn:disabled{background:#b9c4cd}
+  .list{margin-top:8px}
+  .train{display:flex;align-items:center;gap:12px;padding:14px 6px;border-bottom:1px solid #eef1f4}
+  .train:last-child{border-bottom:none}
+  .time{font-size:1.45rem;font-weight:800;color:#0056b3;min-width:62px;line-height:1}
+  .mid{flex:1;min-width:0}
+  .dest{font-weight:600;font-size:.98rem;word-break:break-word}
+  .num{color:#98a2ab;font-size:.78rem;margin-top:2px}
+  .right{text-align:right;flex-shrink:0}
+  .badge{display:inline-block;padding:5px 11px;border-radius:999px;font-size:.78rem;font-weight:700;white-space:nowrap}
+  .badge.ok{background:#e6f4ea;color:#1e7e34}
+  .badge.late{background:#fdecea;color:#c62828}
+  .bin{color:#6b7680;font-size:.78rem;margin-top:5px}
+  .msg{text-align:center;padding:22px 10px;color:#777;display:none}
+  .msg.error{color:#c62828;background:#fdecea;border-radius:12px}
+  .update-time{text-align:center;color:#a5afb8;font-size:.75rem;margin-top:12px}
+  @media(max-width:400px){
+    body{padding:8px}
+    .container{padding:12px;border-radius:12px}
+    h1{font-size:1.15rem}
+    .time{font-size:1.25rem;min-width:52px}
+    .dest{font-size:.9rem}
+  }
+</style>
 </head>
 <body>
-
 <div class="container">
-    <h1>🚆 Portici-Ercolano → Napoli</h1>
-    <p class="subtitle">Dati in tempo reale da RFI</p>
-    
-    <button class="btn" id="refreshBtn" onclick="caricaTreni()">🔄 Aggiorna Orari</button>
-    
-    <div id="loading" class="loading">Caricamento in corso...</div>
-    <div id="error" class="error"></div>
+  <h1>🚆 Treni ENEA Portici</h1>
+  <p class="subtitle">Dati in tempo reale da RFI</p>
 
-    <table id="tabellaTreni">
-        <thead>
-            <tr>
-                <th>Ora</th>
-                <th>Treno</th>
-                <th>Destinazione</th>
-                <th>Bin.</th>
-                <th>Stato</th>
-            </tr>
-        </thead>
-        <tbody id="corpoTabella">
-            <!-- I treni verranno inseriti qui da JavaScript -->
-        </tbody>
-    </table>
+  <label for="tratta">Tratta:</label>
+  <select id="tratta">
+    <option value="portici-napoli">Portici → Napoli (da Portici-Ercolano)</option>
+    <option value="napoli-portici">Napoli → Portici (da Napoli P.za Leopardi)</option>
+  </select>
+
+  <button class="btn" id="btn" onclick="carica()">🔄 Aggiorna Orari</button>
+
+  <div id="load" class="msg">⏳ Caricamento...</div>
+  <div id="err" class="msg error"></div>
+  <div id="list" class="list"></div>
+  <div id="time" class="update-time"></div>
 </div>
 
 <script>
-    async function caricaTreni() {
-        const btn = document.getElementById('refreshBtn');
-        const loading = document.getElementById('loading');
-        const error = document.getElementById('error');
-        const corpo = document.getElementById('corpoTabella');
-
-        btn.disabled = true;
-        loading.style.display = 'block';
-        error.style.display = 'none';
-        corpo.innerHTML = '';
-
-        try {
-            // Chiama la nostra Netlify Function
-            const response = await fetch('/.netlify/functions/get-treni');
-            const data = await response.json();
-
-            if (!response.ok || data.error) {
-                throw new Error(data.error || 'Errore nel recupero dati');
-            }
-
-            if (data.treni.length === 0) {
-                corpo.innerHTML = '<tr><td colspan="5" style="text-align:center;">Nessun treno trovato a breve.</td></tr>';
-            } else {
-                data.treni.forEach(t => {
-                    const riga = document.createElement('tr');
-                    const classeRitardo = t.ritardo && t.ritardo !== 'In orario' ? 'ritardo' : 'orario';
-                    riga.innerHTML = `
-                        <td><strong>${t.orario}</strong></td>
-                        <td>${t.treno}</td>
-                        <td>${t.destinazione}</td>
-                        <td>${t.binario || '-'}</td>
-                        <td class="${classeRitardo}">${t.ritardo || 'In orario'}</td>
-                    `;
-                    corpo.appendChild(riga);
-                });
-            }
-        } catch (err) {
-            error.textContent = '⚠️ Impossibile caricare i dati: ' + err.message;
-            error.style.display = 'block';
-        } finally {
-            btn.disabled = false;
-            loading.style.display = 'none';
-        }
-    }
-
-    // Carica i treni automaticamente all'apertura della pagina
-    window.onload = caricaTreni;
+function card(t){
+  var late = t.ritardo && t.ritardo !== 'In orario';
+  return '<div class="train">' +
+    '<div class="time">' + t.orario + '</div>' +
+    '<div class="mid"><div class="dest">' + t.destinazione + '</div><div class="num">Treno ' + t.treno + '</div></div>' +
+    '<div class="right"><span class="badge ' + (late ? 'late' : 'ok') + '">' + (t.ritardo || 'In orario') + '</span>' +
+    '<div class="bin">Bin. ' + (t.binario || '-') + '</div></div></div>';
+}
+async function carica(){
+  var btn=document.getElementById('btn'),load=document.getElementById('load'),
+      err=document.getElementById('err'),list=document.getElementById('list'),
+      time=document.getElementById('time');
+  btn.disabled=true;load.style.display='block';err.style.display='none';list.innerHTML='';time.textContent='';
+  try{
+    var r=await fetch('/.netlify/functions/get-treni?dir='+document.getElementById('tratta').value);
+    var d=await r.json();
+    if(d.error) throw new Error(d.error);
+    if(!d.treni || d.treni.length===0){ list.innerHTML='<div class="msg" style="display:block">Nessun treno in partenza a breve.</div>'; }
+    else{ list.innerHTML = d.treni.slice(0,3).map(card).join(''); }
+    time.textContent='Ultimo aggiornamento: '+new Date().toLocaleTimeString('it-IT');
+  }catch(e){ err.textContent='⚠️ '+e.message; err.style.display='block'; }
+  btn.disabled=false;load.style.display='none';
+}
+window.onload=carica;
+document.getElementById('tratta').addEventListener('change',carica);
 </script>
-
 </body>
 </html>
