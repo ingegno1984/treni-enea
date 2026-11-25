@@ -3,7 +3,8 @@ const cheerio = require('cheerio');
 
 const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
 const HOME = 'https://iechub.rfi.it/ArriviPartenze/ArrivalsDepartures/Home';
-const BOARD = 'https://iechub.rfi.it/ArriviPartenze/ArrivalsDepartures/Monitor?Arrivals=False&Search=&PlaceId=';
+const BOARD = 'https://iechub.rfi.it/ArriviPartenze/ArrivalsDepartures/Monitor';
+const TIMEOUT = 15000;
 
 const LINE = [
   { k: 'campi',         l: 'Napoli Campi Flegrei',            b: /NAPOLI CAMPI F\.?/,                                              home: ['NAPOLI CAMPI FLEGREI'] },
@@ -30,36 +31,81 @@ const LINE = [
   { k: 'cava',          l: "Cava de' Tirreni",                b: /CAVA DEI TIRRENI|CAVA DE.? TIRRENI/,                             home: ["CAVA DE' TIRRENI", 'CAVA DEI TIRRENI'] },
   { k: 'vietri',        l: 'Vietri sul Mare-Amalfi',          b: /VIETRI SUL MARE/,                                                home: ['VIETRI SUL MARE-AMALFI', 'VIETRI SUL MARE'] },
   { k: 'duomo',         l: 'Duomo-Vietri Vernieri',           b: /DUOMO V\.?VERNIERI|DUOMO VIETRI VERNIERI/,                       home: ['DUOMO-VIETRI VERNIERI', 'DUOMO V.VERNIERI'] },
-  { k: 'salerno',       l: 'Salerno',                         b: /SALERNO/,                                                        home: ['SALERNO'] }
+  { k: 'salerno',       l: 'Salerno',                         b: /SALERNO/,                                                        home: ['SALERNO'], id: '2617' }
 ];
 const IDX = {}; LINE.forEach((s, i) => { IDX[s.k] = i; });
 
-let homeCache = { at: 0, map: null };
 function norm(s) { return String(s || '').toUpperCase().replace(/[^A-Z0-9]/g, ''); }
+async function fetchText(url) {
+  const { data } = await axios.get(url, { headers: { 'User-Agent': UA }, timeout: TIMEOUT });
+  return typeof data === 'string' ? data : JSON.stringify(data);
+}
+
+let homeCache = { at: 0, map: null };
+const idCache = {};
+
+function scanHome(html) {
+  const map = {};
+  const add = (id, name) => { const n = norm(name); if (n && n.length >= 3 && !map[n]) map[n] = id; };
+  let m;
+  const reA = /<a[^>]*placeId=(\d+)[^>]*>([\s\S]*?)<\/a>/gi;
+  while ((m = reA.exec(html))) add(m[1], m[2].replace(/<[^>]*>/g, ' '));
+  const reO = /<option[^>]*value="(\d+)"[^>]*>([\s\S]*?)<\/option>/gi;
+  while ((m = reO.exec(html))) add(m[1], m[2].replace(/<[^>]*>/g, ' '));
+  const reP = /placeId=(\d+)/gi;
+  while ((m = reP.exec(html))) {
+    const after = html.slice(m.index + m[0].length, m.index + m[0].length + 400);
+    const before = html.slice(Math.max(0, m.index - 300), m.index);
+    const ma = /(?:>|\s)([A-ZÀ-Ü'][^<>{}]{3,60})</.exec(after);
+    if (ma) add(m[1], ma[1]);
+    const mb = />([^<>{}]{3,60})<[^>]*$/.exec(before);
+    if (mb) add(m[1], mb[1]);
+    const mt = /title="([^"]{3,60})"/.exec(after);
+    if (mt) add(m[1], mt[1]);
+  }
+  const reJ = /"(?:placeId|PlaceId|id)"\s*:\s*"?(\d+)"?\s*,\s*"(?:name|nome|station|stazione|label)"\s*:\s*"([^"]{3,60})"/gi;
+  while ((m = reJ.exec(html))) add(m[1], m[2]);
+  const reJ2 = /"(?:name|nome|station|stazione|label)"\s*:\s*"([^"]{3,60})"\s*,\s*"(?:placeId|PlaceId|id)"\s*:\s*"?(\d+)"?/gi;
+  while ((m = reJ2.exec(html))) add(m[2], m[1]);
+  return map;
+}
 
 async function getHomeMap() {
   if (homeCache.map && Date.now() - homeCache.at < 6 * 3600e3) return homeCache.map;
-  const { data } = await axios.get(HOME, { headers: { 'User-Agent': UA } });
-  const map = {};
-  let m;
-  const re = /<a[^>]*[?&]placeId=(\d+)[^>]*>([\s\S]*?)<\/a>/gi;
-  while ((m = re.exec(data))) { const n = norm(m[2].replace(/<[^>]*>/g, '')); if (n && !map[n]) map[n] = m[1]; }
-  if (!Object.keys(map).length) {
-    const re2 = /placeId=(\d+)[^>]*>\s*([^<]{4,})</gi;
-    while ((m = re2.exec(data))) { const n = norm(m[2]); if (n && !map[n]) map[n] = m[1]; }
-  }
+  let map = {};
+  try { map = scanHome(await fetchText(HOME)); } catch (e) { map = {}; }
   homeCache = { at: Date.now(), map };
   return map;
 }
 
-async function resolveId(stop) {
-  if (stop.id) return stop.id;
-  let map;
-  try { map = await getHomeMap(); } catch (e) { return null; }
-  const aliases = stop.home.map(norm);
+function matchIn(map, stop) {
+  const aliases = stop.home.map(norm).concat([norm(stop.l)]);
   for (const a of aliases) if (map[a]) return map[a];
   for (const a of aliases) for (const key in map) if (a.length >= 6 && (key.includes(a) || a.includes(key))) return map[key];
   return null;
+}
+
+async function getBoard(stop) {
+  if (stop.id) return { id: stop.id, html: await fetchText(BOARD + '?Arrivals=False&Search=&PlaceId=' + stop.id) };
+  if (idCache[stop.k]) return { id: idCache[stop.k], html: await fetchText(BOARD + '?Arrivals=False&Search=&PlaceId=' + idCache[stop.k]) };
+
+  const map = await getHomeMap();
+  let id = matchIn(map, stop);
+  if (id) { idCache[stop.k] = id; return { id, html: await fetchText(BOARD + '?Arrivals=False&Search=&PlaceId=' + id) }; }
+
+  const html = await fetchText(BOARD + '?Arrivals=False&Search=' + encodeURIComponent(stop.l) + '&PlaceId=');
+  const title = /Stazione di\s*([^<]+)/i.exec(html);
+  if (title && norm(title[1]).includes(norm(stop.l).slice(0, 8))) {
+    const mid = /placeId=(\d+)/i.exec(html);
+    if (mid) {
+      idCache[stop.k] = mid[1];
+      if (homeCache.map) homeCache.map[norm(stop.l)] = mid[1];
+      return { id: mid[1], html };
+    }
+  }
+  const anyId = /placeId=(\d+)/i.exec(html);
+  if (anyId && /<table/i.test(html)) { idCache[stop.k] = anyId[1]; return { id: anyId[1], html }; }
+  throw new Error('Impossibile risolvere la stazione di partenza: ' + stop.l);
 }
 
 exports.handler = async (event) => {
@@ -70,11 +116,8 @@ exports.handler = async (event) => {
     if (!from || !to) return { statusCode: 400, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: 'Stazione non valida' }) };
     if (from.k === to.k) return { statusCode: 400, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: 'Partenza e arrivo coincidono' }) };
 
-    const id = await resolveId(from);
-    if (!id) return { statusCode: 502, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: 'Impossibile risolvere la stazione di partenza: ' + from.l }) };
-
-    const { data } = await axios.get(BOARD + id, { headers: { 'User-Agent': UA } });
-    const $ = cheerio.load(data);
+    const board = await getBoard(from);
+    const $ = cheerio.load(board.html);
     const oIdx = IDX[from.k], tIdx = IDX[to.k];
     const treni = [];
 
@@ -113,9 +156,9 @@ exports.handler = async (event) => {
     return {
       statusCode: 200,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ treni, tratta: from.l + ' → ' + to.l, from: from.k, to: to.k, fromLabel: from.l, toLabel: to.l })
+      body: JSON.stringify({ treni, tratta: from.l + ' → ' + to.l, from: from.k, to: to.k, fromLabel: from.l, toLabel: to.l, placeId: board.id })
     };
   } catch (error) {
-    return { statusCode: 500, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: error.message }) };
+    return { statusCode: 502, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: error.message }) };
   }
 };
