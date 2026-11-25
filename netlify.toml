@@ -1,12 +1,5 @@
 [build]
-  command = "echo 'Nessuna build necessaria'"
   publish = "."
 
 [functions]
   node_bundler = "esbuild"
-  external_node_modules = ["axios", "cheerio"]
-
-[[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/:splat"
-  status = 200
