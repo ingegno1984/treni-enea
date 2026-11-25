@@ -79,7 +79,7 @@ async function carica(){
     var d=await r.json();
     if(d.error) throw new Error(d.error);
     if(!d.treni || d.treni.length===0){ list.innerHTML='<div class="msg" style="display:block">Nessun treno in partenza a breve.</div>'; }
-    else{ list.innerHTML = d.treni.slice(0,3).map(card).join(''); }
+    else{ list.innerHTML = d.treni.slice(0,6).map(card).join(''); }
     time.textContent='Ultimo aggiornamento: '+new Date().toLocaleTimeString('it-IT');
   }catch(e){ err.textContent='⚠️ '+e.message; err.style.display='block'; }
   btn.disabled=false;load.style.display='none';
